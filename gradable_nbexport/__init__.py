@@ -49,6 +49,6 @@ def download_gradable_pdf(notebook_file: str):
         generate_gradable_pdf(notebook, output_path)
     try:
         from IPython.display import HTML
-        return HTML(f'Download <a href="{output_name}">{output_name}</a> & upload it to Canvas for your grade')
+        return HTML(f'Download <a href="{output_name}?download=1" target="_blank">{output_name}</a> & upload it to Canvas for your grade')
     except ImportError:
         print(f'Download {output_name} & upload it to Canvas for your grade')
