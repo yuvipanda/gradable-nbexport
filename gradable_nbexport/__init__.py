@@ -40,3 +40,15 @@ def generate_gradable_pdf(input_notebook: nbformat.NotebookNode, pdf_path: str, 
 
     with open(pdf_path, 'wb') as f:
         f.write(exported_pdf)
+
+def download_gradable_pdf(notebook_file: str):
+    output_name = os.path.splitext(os.path.basename(notebook_file))[0] + '.pdf'
+    output_path = os.path.join(os.path.dirname(notebook_file), output_name)
+    with open(notebook_file) as f:
+        notebook = nbformat.read(f, as_version=4)
+        generate_gradable_pdf(notebook, output_path)
+    try:
+        from IPython.display import HTML
+        return HTML(f'Download <a href="{output_name}">{output_name}</a> & upload it to Canvas for your grade')
+    except ImportError:
+        print(f'Download {output_name} & upload it to Canvas for your grade')
