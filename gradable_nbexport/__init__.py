@@ -10,7 +10,6 @@ import nbconvert
 import tempfile
 import subprocess
 import typing
-from canvasapi import Canvas
 from copy import deepcopy
 
 
@@ -41,58 +40,3 @@ def generate_gradable_pdf(input_notebook: nbformat.NotebookNode, pdf_path: str, 
 
     with open(pdf_path, 'wb') as f:
         f.write(exported_pdf)
-
-
-def submit_assignment(
-    notebook_file: str,
-    assignment_name: str,
-    canvas_course_id: int,
-    canvas_url: str = '',
-    canvas_api_key: str = '',
-):
-
-    if canvas_url == '':
-        if 'CANVAS_API_URL' not in os.environ:
-            raise ValueError('Could not find CANVAS_API_URL in environment, canvas_url must be passed in')
-        canvas_url = os.environ['CANVAS_API_URL']
-    if canvas_api_key == '':
-        if 'CANVAS_API_KEY' not in os.environ:
-            raise ValueError('Could not find CANVAS_API_KEY in environment, canvas_api_key must be passed in')
-        canvas_api_key = os.environ['CANVAS_API_KEY']
-
-    canvas = Canvas(canvas_url, canvas_api_key)
-    course = canvas.get_course(canvas_course_id)
-
-    selected_assignment = None
-    for assignment in course.get_assignments():
-        if assignment.name == assignment_name:
-            selected_assignment = assignment
-            break
-    else:
-        raise ValueError(
-            f'No assignment {assignment_name} found in course {course.name}'
-        )
-
-    with open(notebook_file)  as f:
-        with tempfile.TemporaryDirectory() as d:
-            pdf_path = os.path.join(
-                d,
-                os.path.splitext(os.path.basename(notebook_file))[0] + '.pdf'
-            )
-            generate_gradable_pdf(nbformat.read(f, as_version=4), pdf_path)
-            print(selected_assignment.submit(
-                {'submission_type': 'online_upload', 'user_id':47030},
-                pdf_path,
-                user_id=47030
-            ))
-
-
-def main():
-    with open('Assignment 01.ipynb') as f:
-        generate_gradable_pdf(
-            nbformat.read(f, as_version=4),
-            'Assignment 01.pdf',
-        )
-
-if __name__ == '__main__':
-    main()
